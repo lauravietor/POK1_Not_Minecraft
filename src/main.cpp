@@ -1,26 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window, GLint vertexColorLocation);
-
-const char *vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 aPos;\n"
-	"void main()\n"
-	"{\n"
-	"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-	"}\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
-	"out vec4 FragColor;\n"
-	"uniform vec4 myColor;\n"
-	"void main()\n"
-	"{\n"
-	"    FragColor = myColor;\n"
-	"}\0";
+#include "main.h"
 
 int main()
 {
@@ -54,52 +32,16 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);	// Dark gray background color
-	GLuint vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
 
-	// Check for compilation success/failure
-	int  success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if(!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
+	ShaderProgram shaderProgram("shaders/shader.vert", "shaders/shader.frag");
+	shaderProgram.use();
 
-	GLuint fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	// Check for compilation success/failure
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if(!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	GLuint shaderProgram;
-	shaderProgram = glCreateProgram();
-
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if(!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-	// A rectangle
+	// A triangle
 	GLfloat vertices[] = {
-		 0.0f,  0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
+		// Coordinates       // Color
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+		 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f
 	};
 
 	// Draw 1 triangle
@@ -120,28 +62,24 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	// Shaders are not needed anymore after having been linked
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
 	// Specify the layout of the vertices in memory, required for the vertex shader
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// Coordinates
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// Color
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+	glEnableVertexAttribArray(1);
 
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw a wireframe
-
-	glUseProgram(shaderProgram);
-	int vertexColorLocation = glGetUniformLocation(shaderProgram, "myColor");
-	glUniform4f(vertexColorLocation, 0.7f, 0.7f, 0.7f, 1.0f); // Light gray triangle initially
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw a wireframe
 
 	// Render loop
 	while(!glfwWindowShouldClose(window))
 	{
-		processInput(window, vertexColorLocation);
+		processInput(window, shaderProgram);
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
+		shaderProgram.use();
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -159,17 +97,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window, GLint vertexColorLocation)
+void processInput(GLFWwindow *window, ShaderProgram &shaderProgram)
 {
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)	// Close the window when escape is pressed
 		glfwSetWindowShouldClose(window, true);
-
-	if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)		// Change triangle color to red when R is pressed
-		glUniform4f(vertexColorLocation, 0.8f, 0.3f, 0.2f, 1.0f);
-
-	if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)		// Green when G is pressed
-		glUniform4f(vertexColorLocation, 0.2f, 0.8f, 0.3f, 1.0f);
-
-	if(glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)		// Blue when B is pressed
-		glUniform4f(vertexColorLocation, 0.3f, 0.2f, 0.8f, 1.0f);
 }

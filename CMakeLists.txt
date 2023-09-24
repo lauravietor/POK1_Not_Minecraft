@@ -7,7 +7,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(POK_OpenGL_noQt src/main.cpp
     include/main.h
+    include/shaderprogram.h src/shaderprogram.cpp
+    shaders/shader.frag
+    shaders/shader.vert
 )
+
+add_custom_command(
+    TARGET POK_OpenGL_noQt POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/shaders
+            ${CMAKE_CURRENT_BINARY_DIR}/shaders
+    )
 
 target_include_directories(POK_OpenGL_noQt PRIVATE include/)
 
