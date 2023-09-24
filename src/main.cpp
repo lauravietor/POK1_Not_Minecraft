@@ -33,7 +33,7 @@ int main()
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);	// Dark gray background color
 
-	ShaderProgram shaderProgram("shaders/shader.vert", "shaders/shader.frag");
+	ShaderProgram shaderProgram("shaders/do_nothing.vert", "shaders/vertex_color.frag");
 	shaderProgram.use();
 
 	// A triangle
@@ -80,6 +80,11 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		shaderProgram.use();
+
+		float elapsedTime = glfwGetTime();
+		float dx = sin(elapsedTime)/2;
+		float dy = cos(elapsedTime)/2;
+		shaderProgram.setUniform2f("delta", dx, dy);
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

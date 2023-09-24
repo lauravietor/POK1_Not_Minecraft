@@ -8,8 +8,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(POK_OpenGL_noQt src/main.cpp
     include/main.h
     include/shaderprogram.h src/shaderprogram.cpp
-    shaders/shader.frag
-    shaders/shader.vert
+    shaders/vertex_color.frag
+    shaders/do_nothing.vert
+    shaders/upside_down.vert
+    shaders/move_circle.vert
+    shaders/color_pos.vert
+
 )
 
 add_custom_command(

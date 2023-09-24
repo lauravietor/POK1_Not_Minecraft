@@ -20,6 +20,7 @@ public:
 
 	void setUniform4f(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 	void setUniform3f(const std::string &name, GLfloat x, GLfloat y, GLfloat z);
+	void setUniform2f(const std::string &name, GLfloat x, GLfloat y);
 };
 
 #endif // SHADERPROGRAM_H

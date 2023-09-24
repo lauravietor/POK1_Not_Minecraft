@@ -100,3 +100,8 @@ void ShaderProgram::setUniform3f(const std::string &name, GLfloat x, GLfloat y, 
 {
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 }
+
+void ShaderProgram::setUniform2f(const std::string &name, GLfloat x, GLfloat y)
+{
+	glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y);
+}
