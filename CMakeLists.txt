@@ -20,6 +20,9 @@ add_executable(POK_OpenGL_noQt src/main.cpp
     assets/shaders/transform4x4.vert
     assets/shaders/transform4x4.vert
     assets/shaders/model_view_proj_matrices.vert
+    assets/shaders/mvp_matrices_cubemap.vert
+    assets/shaders/cubemap.frag
+
 )
 
 add_custom_command(

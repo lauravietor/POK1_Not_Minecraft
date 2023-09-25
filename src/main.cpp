@@ -36,20 +36,20 @@ int main()
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);	// Dark gray background color
 
-	ShaderProgram shaderProgram("assets/shaders/model_view_proj_matrices.vert", "assets/shaders/vertex_color.frag");
+	ShaderProgram shaderProgram("assets/shaders/mvp_matrices_cubemap.vert", "assets/shaders/cubemap.frag");
 	shaderProgram.use();
 
 	// A cube
 	GLfloat vertices[] = {
 		// Coordinates        // Color           // Texture coordinates
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,	// Top left front relative to the cube, facing towards the camera
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,	// Top right front
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,	// Bottom right front
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f,	// Bottom left front
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f,	// Top left back
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,	// Top right back
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,	// Bottom right back
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,	// Bottom left back
+		 0.5f,  0.5f,  0.5f,  //1.0f, 1.0f, 1.0f,  1.0f, 1.0f,	// Top left front relative to the cube, facing towards the camera
+		-0.5f,  0.5f,  0.5f,  //0.0f, 1.0f, 1.0f,  0.0f, 1.0f,	// Top right front
+		-0.5f, -0.5f,  0.5f,  //0.0f, 0.0f, 1.0f,  0.0f, 0.0f,	// Bottom right front
+		 0.5f, -0.5f,  0.5f,  //1.0f, 0.0f, 1.0f,  1.0f, 0.0f,	// Bottom left front
+		 0.5f,  0.5f, -0.5f,  //1.0f, 1.0f, 0.0f,  1.0f, 1.0f,	// Top left back
+		-0.5f,  0.5f, -0.5f,  //0.0f, 1.0f, 0.0f,  0.0f, 1.0f,	// Top right back
+		-0.5f, -0.5f, -0.5f,  //0.0f, 0.0f, 0.0f,  0.0f, 0.0f,	// Bottom right back
+		 0.5f, -0.5f, -0.5f,  //1.0f, 0.0f, 0.0f,  1.0f, 0.0f,	// Bottom left back
 	};
 
 	// Draw 12 triangles for the entire cube, 2 per face
@@ -89,35 +89,41 @@ int main()
 
 	// Specify the layout of the vertices' data in memory, required for the vertex shader
 	// Coordinates
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// Color
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
-	glEnableVertexAttribArray(1);
-	// Texture coordinates
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
-	glEnableVertexAttribArray(2);
+//	// Color
+//	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
+//	glEnableVertexAttribArray(1);
+//	// Texture coordinates
+//	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
+//	glEnableVertexAttribArray(2);
 
 	GLuint texture_grass;
 	glGenTextures(1, &texture_grass);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_grass);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_grass);
 
 	//Repeat texture when the texture coordinate is outside the [0, 1] range
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
 	// Nearest neighbour upscalind, linear downscaling, linear interpolation between mipmaps
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load("assets/textures/grass.png", &width, &height, &nrChannels, 0);
+	unsigned char *data_dirt = stbi_load("assets/textures/dirt.png", &width, &height, &nrChannels, 0);
+	for (unsigned int i = 0; i < 6; i++) {
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_dirt);
+	}
+	stbi_image_free(data_dirt);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	unsigned char *data_grass = stbi_load("assets/textures/grass.png", &width, &height, &nrChannels, 0);
 
-	stbi_image_free(data);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_grass);
+
+	stbi_image_free(data_grass);
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw a wireframe
 	glEnable(GL_DEPTH_TEST); // Enable depth testing to avoir drawing far elements over close elements
