@@ -1,5 +1,8 @@
 #include "main.h"
 
+unsigned int window_width = 800;
+unsigned int window_height = 600;
+
 int main()
 {
 	// Initialize GLFW and setup some config options
@@ -9,7 +12,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create the GLFW window
-	GLFWwindow* window = glfwCreateWindow(800, 600, "POK1", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "POK1", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -33,7 +36,7 @@ int main()
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);	// Dark gray background color
 
-	ShaderProgram shaderProgram("assets/shaders/transform4x4.vert", "assets/shaders/vertex_color.frag");
+	ShaderProgram shaderProgram("assets/shaders/model_view_proj_matrices.vert", "assets/shaders/vertex_color.frag");
 	shaderProgram.use();
 
 	// A cube
@@ -117,22 +120,37 @@ int main()
 	stbi_image_free(data);
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw a wireframe
-	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST); // Enable depth testing to avoir drawing far elements over close elements
+//	glEnable(GL_CULL_FACE); // Enable back face culling
 
 	// Render loop
 	while(!glfwWindowShouldClose(window))
 	{
 		processInput(window, shaderProgram);
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindTexture(GL_TEXTURE_2D, texture_grass);
 
 		shaderProgram.use();
 
-		glm::mat4x4 transform = glm::mat4x4(1.0f);
-		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-		shaderProgram.setUniformMat4x4("transform", transform);
+		// Model matrix: transformations applied to the model
+		glm::mat4x4 model = glm::mat4x4(1.0f);
+		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate horizontally over time
+
+		// View matrix: transformation applied to the entire scene to move the camera
+		glm::mat4x4 view = glm::mat4x4(1.0f);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+		view = glm::rotate(view, glm::radians(30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		// Projection matrix: final projection into OpenGL internal coordinates, perspective
+		glm::mat4x4 projection = glm::perspective(glm::radians(45.0f), (float)window_width/(float)window_height, 0.1f, 100.0f);
+
+		// Pass these matrices to the vertex shader
+		shaderProgram.setUniformMat4x4("model", model);
+		shaderProgram.setUniformMat4x4("view", view);
+		shaderProgram.setUniformMat4x4("projection", projection);
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
@@ -150,6 +168,8 @@ int main()
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+	window_width = width;
+	window_height = height;
 	glViewport(0, 0, width, height);
 }
 
