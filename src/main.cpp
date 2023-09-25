@@ -33,22 +33,42 @@ int main()
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);	// Dark gray background color
 
-	ShaderProgram shaderProgram("assets/shaders/texture.vert", "assets/shaders/texture.frag");
+	ShaderProgram shaderProgram("assets/shaders/transform4x4.vert", "assets/shaders/vertex_color.frag");
 	shaderProgram.use();
 
-	// A rectangle
+	// A cube
 	GLfloat vertices[] = {
-		// Coordinates       // Color          // Texture coordinates
-		 0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-		 0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f
+		// Coordinates        // Color           // Texture coordinates
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,	// Top left front relative to the cube, facing towards the camera
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,	// Top right front
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,	// Bottom right front
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f,	// Bottom left front
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f,	// Top left back
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,	// Top right back
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,	// Bottom right back
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,	// Bottom left back
 	};
 
-	// Draw 2 triangles
+	// Draw 12 triangles for the entire cube, 2 per face
 	GLuint indices[] = {
+		// Front face: 0, 1, 2, 3 counterclockwise
 		0, 1, 2,
-		2, 3, 0
+		0, 2, 3,
+		// Back face: 4, 7, 6, 5 counterclockwise
+		4, 7, 6,
+		4, 6, 5,
+		// Left face: 0, 3, 7, 4 counterclockwise
+		0, 3, 7,
+		0, 7, 4,
+		// Right face: 1, 5, 6, 2 counterclockwise
+		1, 5, 6,
+		1, 6, 2,
+		// Top face: 0, 4, 5, 1 counterclockwise
+		0, 4, 5,
+		0, 5, 1,
+		// Bottom face: 2, 6, 7, 3 counterclockwise
+		2, 6, 7,
+		2, 7, 3,
 	};
 
 	GLuint VAO, VBO, EBO;
@@ -97,6 +117,7 @@ int main()
 	stbi_image_free(data);
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw a wireframe
+	glEnable(GL_CULL_FACE);
 
 	// Render loop
 	while(!glfwWindowShouldClose(window))
@@ -108,8 +129,12 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, texture_grass);
 
 		shaderProgram.use();
+
+		glm::mat4x4 transform = glm::mat4x4(1.0f);
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+		shaderProgram.setUniformMat4x4("transform", transform);
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
