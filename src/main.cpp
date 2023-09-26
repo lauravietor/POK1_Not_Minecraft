@@ -183,4 +183,14 @@ void processInput(GLFWwindow *window, ShaderProgram &shaderProgram)
 {
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)	// Close the window when escape is pressed
 		glfwSetWindowShouldClose(window, true);
+
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_CULL_FACE);
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_CULL_FACE);
+	}
 }
