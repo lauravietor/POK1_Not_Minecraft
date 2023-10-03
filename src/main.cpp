@@ -1,25 +1,20 @@
 #include "main.h"
 
+#define WINDOW_TITLE "POK1"
 unsigned int window_width = 800;
 unsigned int window_height = 600;
 
 int main()
 {
 	// Initialize GLFW and setup some config options
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	initGlfw(3, 3, true);
 
 	// Create the GLFW window
-	GLFWwindow* window = glfwCreateWindow(window_width, window_height, "POK1", NULL, NULL);
-	if (window == NULL)
+	GLFWwindow * window;
+	if(createWindow(&window)) // Window creation failed
 	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
 		return -1;
 	}
-	glfwMakeContextCurrent(window);
 
 	// Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -29,10 +24,7 @@ int main()
 	}
 
 	// Tell OpenGL what part of the window it should use
-	glViewport(0, 0, 800, 600);
-
-	// Allow proper window resizing
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glViewport(0, 0, window_width, window_height);
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);	// Dark gray background color
 
@@ -127,7 +119,7 @@ int main()
 
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Draw a wireframe
 	glEnable(GL_DEPTH_TEST); // Enable depth testing to avoir drawing far elements over close elements
-//	glEnable(GL_CULL_FACE); // Enable back face culling
+	glEnable(GL_CULL_FACE); // Enable back face culling
 
 	// Render loop
 	while(!glfwWindowShouldClose(window))
@@ -169,6 +161,34 @@ int main()
 	glDeleteBuffers(1, &EBO);
 
 	glfwTerminate();
+	return 0;
+}
+
+void initGlfw(int gl_major, int gl_minor, bool core_profile)
+{
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
+	if (core_profile)
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	else
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+}
+
+int createWindow(GLFWwindow ** window)
+{
+	*window = glfwCreateWindow(window_width, window_height, WINDOW_TITLE, NULL, NULL);
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(*window);
+
+	// Allow proper window resizing
+	glfwSetFramebufferSizeCallback(*window, framebuffer_size_callback);
+
 	return 0;
 }
 
