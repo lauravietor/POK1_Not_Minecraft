@@ -6,6 +6,10 @@
 
 unsigned int window_width = 800;
 unsigned int window_height = 600;
+float lastX = static_cast<float>(window_width) / 2.0f;
+float lastY = static_cast<float>(window_height) / 2.0f;
+
+Camera camera(glm::vec3(0.5f, 0.0f, 0.5f), -90.0f, 0.0f);
 
 int main()
 {
@@ -141,12 +145,20 @@ int main()
 	glEnable(GL_DEPTH_TEST); // Enable depth testing to avoir drawing far elements over close elements
 	glEnable(GL_CULL_FACE); // Enable back face culling: don't draw a triangle when its vertices are in a clockwise order
 
-	Camera camera(glm::vec3(0.0f, 100.0f, 0.0f), 0.0f, -90.0f);
+	camera.moveVertical(static_cast<float>(heights[WORLD_DIMS_X/2][WORLD_DIMS_Y] + 2));
+
+	double time = glfwGetTime();
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	// Render loop
 	while(!glfwWindowShouldClose(window))
 	{
-		processInput(window);
+		double newTime = glfwGetTime();
+		double timeDelta = newTime - time;
+		time = newTime;
+		processInput(window, camera, timeDelta);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -168,7 +180,7 @@ int main()
 		shaderProgram.setUniformMat4x4("view", view);
 		shaderProgram.setUniformMat4x4("projection", projection);
 
-		shaderProgram.setUniform3f("LightDirection", glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)));
+		shaderProgram.setUniform3f("LightDirection", glm::normalize(glm::vec3(-1.0f, -1.0f, -2.0f)));
 		shaderProgram.setUniform1f("ambient", 0.6f);
 
 		glBindVertexArray(VAO);
@@ -221,10 +233,50 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window)
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	const float sensitivity = 0.1f;
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+	lastX = xpos;
+	lastY = ypos;
+
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	camera.adjustOrientation(xoffset, yoffset);
+}
+
+void processInput(GLFWwindow *window, Camera &camera, double timeDelta)
+{
+	double speed = 5.0;
+	float displacement = speed * timeDelta;
+	glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)	// Close the window when escape is pressed
 		glfwSetWindowShouldClose(window, true);
+
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		direction.z += 1.0f;
+
+	if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		direction.z -= 1.0f;
+
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		direction.x -= 1.0f;
+
+	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		direction.x += 1.0f;
+
+	if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		direction.y += 1.0f;
+
+	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		direction.y -= 1.0f;
+
+	if(direction.x || direction.y || direction.z)
+		camera.move(displacement * glm::normalize(direction));
 }
 
 void add_top_face(int x, int z, int y, std::vector<GLfloat> &vertices, std::vector<GLuint> &indices)

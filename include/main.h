@@ -1,6 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <functional>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -18,7 +19,8 @@
 void initGlfw(int gl_major, int gl_minor, bool core_profile);
 int createWindow(GLFWwindow ** window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void processInput(GLFWwindow *window, Camera &camera, double timeDelta);
 
 void add_top_face(int x, int y, int h, std::vector<GLfloat> &vertices, std::vector<GLuint> &indices);
 void add_west_face(int x, int y, int h, std::vector<GLfloat> &vertices, std::vector<GLuint> &indices);

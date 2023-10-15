@@ -9,6 +9,7 @@ class Camera
 public:
 	Camera(glm::vec3 potision, float yaw, float pitch);
 	glm::mat4x4 viewMatrix();
+	void move(glm::vec3 displacement);
 	void moveForwards(float distance);
 	void moveRight(float distance);
 	void moveVertical(float distance);

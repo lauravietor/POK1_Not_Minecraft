@@ -13,9 +13,16 @@ glm::mat4x4 Camera::viewMatrix()
 	return glm::lookAt(position, position + front, up);
 }
 
+void Camera::move(glm::vec3 displacement)
+{
+	moveForwards(displacement.z);
+	moveRight(displacement.x);
+	moveVertical(displacement.y);
+}
+
 void Camera::moveForwards(float distance)
 {
-	position += distance * front;
+	position += distance * glm::normalize(front - glm::dot(front, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::moveRight(float distance)
