@@ -1,4 +1,5 @@
 #include "../include/simplexnoise.h"
+#include <iostream>
 
 using std::numbers::pi;
 
@@ -29,8 +30,6 @@ double SimplexNoise::sample(double x, double y)
 	glm::vec2 delta0 = coords - vertex0;
 	glm::vec2 delta1 = coords - vertex1;
 	glm::vec2 delta2 = coords - vertex2;
-
-	// TODO: Get pseudo-random gradient direction for each vertex
 
 	glm::vec2 dir0 = directions[shuffle(shuffle((int)vertex0.x) + shuffle(shuffle((int)vertex0.x)))];
 	glm::vec2 dir1 = directions[shuffle(shuffle((int)vertex1.x) + shuffle(shuffle((int)vertex1.x)))];

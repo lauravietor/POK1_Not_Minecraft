@@ -23,8 +23,8 @@ add_executable(POK_OpenGL_noQt src/main.cpp
     assets/shaders/mvp_matrices_cubemap.vert
     assets/shaders/cubemap.frag
     include/simplexnoise.h src/simplexnoise.cpp
-    assets/shaders/simplexnoise.frag
     include/world.h src/world.cpp
+    assets/shaders/light_tex_array.frag
 
 )
 

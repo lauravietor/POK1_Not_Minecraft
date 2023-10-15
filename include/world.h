@@ -9,13 +9,14 @@
 class World
 {
 public:
-	World(std::mt19937_64 &rng, unsigned int octaves, double frequency, double amplitude, double persistence);
+	World(unsigned int, unsigned int octaves, double frequency, double amplitude, double persistence);
 	int getHeightAt(int x, int y);
 private:
 	std::mt19937_64 rng;
 	double frequency;
 	double amplitude;
 	double persistence;
+	unsigned int octaves;
 	std::vector<SimplexNoise> noises;
 };
 

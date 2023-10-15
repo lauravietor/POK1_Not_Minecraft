@@ -1,13 +1,16 @@
 #include "../include/world.h"
+#include <iostream>
 
-World::World(std::mt19937_64 &rng, unsigned int octaves, double frequency, double amplitude, double persistence)
+World::World(unsigned int seed, unsigned int octaves, double frequency, double amplitude, double persistence)
 {
-	this->rng = rng;
+	this->rng = std::mt19937_64();
+	this->rng.seed(seed);
 	this->frequency = frequency;
 	this->amplitude = amplitude;
 	this->persistence = persistence;
 	this->noises = std::vector<SimplexNoise>();
 	this->noises.reserve(octaves);
+	this->octaves = octaves;
 	for (size_t i = 0; i < octaves; i++)
 	{
 		this->noises[i] = SimplexNoise(this->rng);
@@ -17,15 +20,15 @@ World::World(std::mt19937_64 &rng, unsigned int octaves, double frequency, doubl
 int World::getHeightAt(int x, int y)
 {
 	double f = frequency;
-	double p = persistence;
+	double p = 1;
 	double height = 0.;
 
-	for (SimplexNoise n : noises)
+	for (int i = 0; i < octaves; i++)
 	{
-		height += p * amplitude * n.sample(((double)x + 0.5) * f, ((double)y + 0.5) * f);
+		height += p * amplitude * noises[i].sample(((double)x + 0.5) * f, ((double)y + 0.5) * f);
 		f *= 2;
 		p *= persistence;
 	}
 
-	return (int)height;
+	return static_cast<int>(height);
 }
