@@ -141,7 +141,7 @@ int main()
 	glEnable(GL_DEPTH_TEST); // Enable depth testing to avoir drawing far elements over close elements
 	glEnable(GL_CULL_FACE); // Enable back face culling: don't draw a triangle when its vertices are in a clockwise order
 
-
+	Camera camera(glm::vec3(0.0f, 100.0f, 0.0f), 0.0f, -90.0f);
 
 	// Render loop
 	while(!glfwWindowShouldClose(window))
@@ -154,13 +154,11 @@ int main()
 
 		shaderProgram.use();
 
-		// Model matrix: transformations applied to the model
+		// Model matrix: transformations applied to the model, unneeded here
 		glm::mat4x4 model = glm::mat4x4(1.0f);
 
 		// View matrix: transformation applied to the entire scene to move the camera
-		glm::mat4x4 view = glm::mat4x4(1.0f);
-		view = glm::rotate(view, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		view = glm::translate(view, glm::vec3(0.0, -100.0f, 0.0f));
+		glm::mat4x4 view = camera.viewMatrix();
 
 		// Projection matrix: final projection into OpenGL internal coordinates
 		glm::mat4x4 projection = glm::perspective(glm::radians(45.0f), (float)window_width/(float)window_height, 0.1f, 1000.0f);
@@ -170,8 +168,8 @@ int main()
 		shaderProgram.setUniformMat4x4("view", view);
 		shaderProgram.setUniformMat4x4("projection", projection);
 
-		shaderProgram.setUniform3f("LightDirection", -1.0f, -1.0f, -1.0f);
-		shaderProgram.setUniform1f("ambient", 0.4f);
+		shaderProgram.setUniform3f("LightDirection", glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)));
+		shaderProgram.setUniform1f("ambient", 0.6f);
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

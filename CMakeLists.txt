@@ -25,6 +25,7 @@ add_executable(POK_OpenGL_noQt src/main.cpp
     include/simplexnoise.h src/simplexnoise.cpp
     include/world.h src/world.cpp
     assets/shaders/light_tex_array.frag
+    include/camera.h src/camera.cpp
 
 )
 
