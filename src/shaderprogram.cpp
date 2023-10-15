@@ -96,14 +96,29 @@ void ShaderProgram::setUniform4f(const std::string &name, GLfloat x, GLfloat y, 
 	glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
 }
 
+void ShaderProgram::setUniform4f(const std::string &name, glm::vec4 v)
+{
+	glUniform4f(glGetUniformLocation(ID, name.c_str()), v.x, v.y, v.z, v.w);
+}
+
 void ShaderProgram::setUniform3f(const std::string &name, GLfloat x, GLfloat y, GLfloat z)
 {
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 }
 
+void ShaderProgram::setUniform3f(const std::string &name, glm::vec3 v)
+{
+	glUniform3f(glGetUniformLocation(ID, name.c_str()), v.x, v.y, v.z);
+}
+
 void ShaderProgram::setUniform2f(const std::string &name, GLfloat x, GLfloat y)
 {
 	glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y);
+}
+
+void ShaderProgram::setUniform2f(const std::string &name, glm::vec2 v)
+{
+	glUniform2f(glGetUniformLocation(ID, name.c_str()), v.x, v.y);
 }
 
 void ShaderProgram::setUniform1f(const std::string &name, GLfloat x)

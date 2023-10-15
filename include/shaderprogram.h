@@ -22,8 +22,11 @@ public:
 	void use();
 
 	void setUniform4f(const std::string &name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+	void setUniform4f(const std::string &name, glm::vec4 v);
 	void setUniform3f(const std::string &name, GLfloat x, GLfloat y, GLfloat z);
+	void setUniform3f(const std::string &name, glm::vec3 v);
 	void setUniform2f(const std::string &name, GLfloat x, GLfloat y);
+	void setUniform2f(const std::string &name, glm::vec2 v);
 	void setUniform1f(const std::string &name, GLfloat x);
 	void setUniform1i(const std::string &name, GLint n);
 	void setUniformMat4x4(const std::string &name, glm::mat4x4 &matrix);
